@@ -2,43 +2,60 @@
 let displayScreen = document.getElementById('display-screen');
 const buttons = document.querySelectorAll('.row button');
 
-let currentTotal = 0;
-let currentOperator;
+// Initialise the required variables
+let displayVal;
+let array = new Array();
+let opClicked = false;
+array[0] = '';
+array[1] = '';
+let currentSolution;
+let currentOp;
 
 function populateDisplay(){
-    const array = new Array();
-    let index;
-    let num1;
-    let num2;
-    let currentOp;
     buttons.forEach(button => {
         button.onclick = (e) => {
             const number = e.target.dataset.number
             const op = e.target.dataset.operator
             displayScreen.textContent += number ? `${number}` : ` ${op} `
 
-            if(!op){
-                array.push(number)
-            } else if(op && op !== '='){
-                array.push(op)
-                index = array.indexOf(op)
+            // If an operator was chosen and it wasnt equals, make opClicked true and store the current operator chosen
+            if(op && op != '='){
+                opClicked = true;
                 currentOp = op;
-            } else if(op === '='){
-                // Calculate solution
-                num1 = array.slice(0, index).join("")
-                num2 = array.slice(index + 1).join("")
-                console.log(num1, num2)
-                
-                if(currentOp === '÷'){
-                    displayScreen.textContent += `${operate(divide, num1, num2)}`
-                } else if(currentOp === 'x'){
-                    displayScreen.textContent += `${operate(multiply, num1, num2)}`
-                } else if(currentOp === '-'){
-                    displayScreen.textContent += `${operate(subtract, num1, num2)}`
-                } else if(currentOp === '+'){
-                    displayScreen.textContent += `${operate(add, num1, num2)}`
+            }
+            // If an operator has not been clicked yet, store the numbers inputed as the first number
+            // Else  if opClicked = true and no operator has been clicked, store any number after that as the second number
+            if(!opClicked){
+                array[0] += parseInt(number)
+            }else{
+                if(!op){
+                    array[1] += parseInt(number);
                 }
             }
+            
+            // If the equal sign is clicked, perform the operation depending on the operator that was clicked and store the value in a variable.
+            if(op === '='){
+                if(currentOp === '-'){
+                    currentSolution = operate(subtract, array[0], array[1]);
+                } else if(currentOp === 'x'){
+                    currentSolution = operate(multiply, array[0], array[1])
+                } else if(currentOp === '÷'){
+                    currentSolution = operate(divide, array[0], array[1])
+                } else if(currentOp === '+'){
+                    currentSolution = operate(add, array[0], array[1])
+                }
+
+                // Update the screen to display teh solution,
+                // set the first number to the current solution number and set the second number to nothing
+                // Set opClicked to false
+                displayScreen.textContent += currentSolution;
+                array[0] = currentSolution;
+                array[1] = '';
+                opClicked = false;
+            }
+            console.log(array)
+
+            
         }
     })
 }
