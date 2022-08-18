@@ -12,22 +12,31 @@ body{
 }
 .container{
     background-color: #1f2937;
-    height: 550px;
-    width: 550px;
+    height: 600px;
+    width: 600px;
     display: flex;
     align-items: center;
     flex-direction: column;
     border-radius: 15px;
     padding: 25px;
 }
-#display-screen{
+.display-container{
     width: 100%;
     padding: 20px;
+    height: 130px;
     background-color: #f0f3f7;
     border-radius: 15px;
-    font-size: 30px;
-    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
     color: #1f2937;
+}
+#display-screen{
+    font-size: 50px;
+}
+#operation-screen{
+    font-size: 25px;
 }
 .action-buttons{
     display: flex;

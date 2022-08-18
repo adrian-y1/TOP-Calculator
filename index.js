@@ -1,74 +1,92 @@
 
 let displayScreen = document.getElementById('display-screen');
 const buttons = document.querySelectorAll('.row button');
+let operationScreen = document.getElementById('operation-screen')
+const clearBtn = document.getElementById('clear');
 
-// Initialise the required variables
-let displayVal;
-let array = new Array();
+let calculation = new Array();
+calculation[0] = '';
+calculation[1] = '';
 let opClicked = false;
-array[0] = '';
-array[1] = '';
 let currentSolution;
 let currentOp;
 
-function populateDisplay(){
-    buttons.forEach(button => {
-        button.onclick = (e) => {
-            const number = e.target.dataset.number
-            const op = e.target.dataset.operator
-            displayScreen.textContent += number ? `${number}` : ` ${op} `
 
-            // If an operator was chosen and it wasnt equals, make opClicked true and store the current operator chosen
-            if(op && op != '='){
+buttons.forEach(button => {
+    button.onclick = (e) => {
+        const number = e.target.dataset.number
+        const op = e.target.dataset.operator
+        displayScreen.textContent = number ? `${number}` : `${calculation[0]}`
+
+        // Error checking
+        if(op === '=' && (calculation[0] === '' || calculation[1] === '')){
+            displayScreen.textContent = 'Syntax Error!'
+        } else if(currentOp === '÷' && calculation[1] === '0'){
+            displayScreen.textContent = 'Cannot divide by 0!'
+        } else {
+            // If an operator was chosen and it wasnt equals and there is no second number, make opClicked true and store the current operator chosen
+            if(op && op != '=' && !calculation[1]){
                 opClicked = true;
                 currentOp = op;
             }
             // If an operator has not been clicked yet, store the numbers inputed as the first number
             // Else  if opClicked = true and no operator has been clicked, store any number after that as the second number
             if(!opClicked){
-                array[0] += parseInt(number)
+                calculation[0] += number
+                displayScreen.textContent =  calculation[0]
             }else{
                 if(!op){
-                    array[1] += parseInt(number);
+                    calculation[1] += number;
+                    displayScreen.textContent =  calculation[1]
                 }
             }
-            
-            // If the equal sign is clicked, perform the operation depending on the operator that was clicked and store the value in a variable.
-            if(op === '='){
-                if(currentOp === '-'){
-                    currentSolution = operate(subtract, array[0], array[1]);
-                } else if(currentOp === 'x'){
-                    currentSolution = operate(multiply, array[0], array[1])
-                } else if(currentOp === '÷'){
-                    currentSolution = operate(divide, array[0], array[1])
-                } else if(currentOp === '+'){
-                    currentSolution = operate(add, array[0], array[1])
-                }
-
-                // Update the screen to display teh solution,
-                // set the first number to the current solution number and set the second number to nothing
-                // Set opClicked to false
-                displayScreen.textContent += currentSolution;
-                array[0] = currentSolution;
-                array[1] = '';
-                opClicked = false;
+            // If an operator was chosen and there is a second number, perform the operation depending on the operator that was clicked and store the value in a variable.
+            // Update the values of variables
+            if(op && calculation[1] !== ''){
+                performOperation(currentOp, calculation[0], calculation[1]);
+                currentOp = op;
+                displayScreen.textContent = `${roundSolution(currentSolution)}`;
+                calculation[0] = roundSolution(currentSolution);
+                calculation[1] = '';
             }
-            console.log(array)
-
-            
         }
-    })
+        clearBtn.onclick = () => {
+            clear();
+        }
+    }
+})
+
+function clear(){
+    displayScreen.textContent = '0';
+    calculation[0] = '';
+    calculation[1] = '';
+    currentOp = '';
+    opClicked = false;
+    currentSolution = '';
 }
 
-populateDisplay();
+function performOperation(operation, a, b){
+    if(operation === '-'){
+        currentSolution = operate(subtract, a, b);
+    } else if(operation === 'x'){
+        currentSolution = operate(multiply, a, b)
+    } else if(operation === '÷'){
+        currentSolution = operate(divide, a, b)
+    } else if(operation === '+'){
+        currentSolution = operate(add, a, b)
+    }
+}
 
+function roundSolution(n){
+    return Math.round(n * 100) / 100;
+}
 
 function operate(operator,a,b){
     return operator(a,b);
 }
 
 function add(a,b){
-    return parseInt(a) + parseInt(b);
+    return parseFloat(a) + parseFloat(b);
 }
 
 function subtract(a,b){
