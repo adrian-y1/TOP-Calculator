@@ -4,7 +4,6 @@ const buttons = document.querySelectorAll('.row button');
 let operationScreen = document.getElementById('operation-screen');
 const clearBtn = document.getElementById('clear');
 const pointBtn = document.getElementById('point');
-const deleteBtn = document.getElementById('delete');
 
 let calculation = new Array();
 calculation[0] = 0;
@@ -22,19 +21,38 @@ buttons.forEach(button => {
     }
 })
 
+// Clear the calculator
+clearBtn.onclick = () => {
+    clear();
+}
+function keyboardClear(e){
+    if(e.keyCode === 27){
+        clear();
+    }
+}
+window.addEventListener('keydown', keyboardClear)
+
+
+// Keyboard support
 function keyboardCalculation(e){
     const key = document.querySelector(`button[data-key="${e.keyCode}"]`);
     let op;
     let number;
-
+    // Update the current operator depending on the key pressed
     if(e.shiftKey && e.keyCode === 56){
         op = 'x';
-        number += '';
+    } else if (e.shiftKey && e.keyCode === 187){
+        op = '+';
+    } else if (!e.shiftKey && e.keyCode === 187){
+        op = '=';
+    } else if(e.keyCode === 191){
+        op = '÷';
+    } else if(e.keyCode === 189){
+        op = '-';
     }
+    // Check if a dataset key has been pressed, if so update the number depending on the key pressed
     if(key){
-        if(key.dataset.operator){
-            op = key.dataset.operator
-        } else if(key.dataset.number){
+        if(key.dataset.number){
             number = key.dataset.number
         }
         calculate(number, op)
@@ -43,6 +61,8 @@ function keyboardCalculation(e){
 
 window.addEventListener('keydown', keyboardCalculation)
 
+
+// Performs all the calculations
 function calculate(number, op){
 
     displayScreen.textContent = number ? `${number}` : `${calculation[0]}`
@@ -99,9 +119,6 @@ function calculate(number, op){
             calculation[1] = '';
         }
     }
-    clearBtn.onclick = () => {
-        clear();
-    }
 }
 
 
@@ -125,7 +142,7 @@ function performOperation(operation, a, b){
         currentSolution = operate(divide, a, b)
     } else if(operation === '+'){
         currentSolution = operate(add, a, b)
-    }
+    } 
 }
 
 function roundSolution(n){
